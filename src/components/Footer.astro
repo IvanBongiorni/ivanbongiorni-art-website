@@ -1,0 +1,42 @@
+---
+import Newsletter from './Newsletter.astro';
+import SocialLinks from './SocialLinks.astro';
+import { SITE } from '../site.config';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <Newsletter />
+    <div class="side">
+      <SocialLinks />
+      <p class="meta">
+        © {year} {SITE.author}. All rights reserved.<br />
+        Artwork may not be reproduced without permission.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    margin-top: 2rem;
+    padding: 2.5rem 0;
+  }
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+  }
+  .side {
+    display: grid;
+    gap: 1rem;
+  }
+  .side p {
+    margin: 0;
+  }
+</style>

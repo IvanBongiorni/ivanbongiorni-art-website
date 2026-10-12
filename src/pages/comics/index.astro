@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import StoryGrid from '../../components/StoryGrid.astro';
+import { getStories } from '../../lib/content';
+
+const stories = await getStories();
+---
+
+<Base title="Comics" description="All comic stories by Ivan Bongiorni.">
+  <section class="wrap section">
+    <h1>Comics</h1>
+    <StoryGrid stories={stories} />
+  </section>
+</Base>

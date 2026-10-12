@@ -1,0 +1,49 @@
+---
+import { NEWSLETTER } from '../site.config';
+
+interface Props {
+  heading?: string;
+}
+
+const { heading = 'Get notified of new stories' } = Astro.props;
+const action = `https://app.kit.com/forms/${NEWSLETTER.kitFormId}/subscriptions`;
+---
+
+{
+  NEWSLETTER.kitFormId && (
+    <form class="newsletter" action={action} method="post">
+      <p class="heading">{heading}</p>
+      <p class="muted">{NEWSLETTER.pitch}</p>
+      <div class="row">
+        <input type="email" name="email_address" aria-label="Email address" placeholder="you@example.com" required autocomplete="email" />
+        <button class="button" type="submit">Subscribe</button>
+      </div>
+    </form>
+  )
+}
+
+<style>
+  .newsletter {
+    max-width: 30rem;
+  }
+  .heading {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.25em;
+  }
+  .row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  input {
+    flex: 1 1 14rem;
+    min-width: 0;
+    padding: 0.7em 0.9em;
+    font: inherit;
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    background: #fff;
+  }
+</style>

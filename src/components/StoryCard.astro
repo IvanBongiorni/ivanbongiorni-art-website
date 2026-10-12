@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import { getPages, formatDate, type Story } from '../lib/content';
+
+interface Props {
+  story: Story;
+}
+
+const { story } = Astro.props;
+const pageCount = getPages(story.id).length;
+---
+
+<a class="card" href={`/comics/${story.id}/`}>
+  <Image
+    src={story.data.cover}
+    alt={`Cover of ${story.data.title}`}
+    widths={[320, 480, 720]}
+    sizes="(min-width: 1000px) 280px, (min-width: 600px) 30vw, 45vw"
+  />
+  <h3>{story.data.title}</h3>
+  <p class="meta">{formatDate(story.data.date)} · {pageCount} {pageCount === 1 ? 'page' : 'pages'}</p>
+</a>
+
+<style>
+  .card {
+    display: block;
+    text-decoration: none;
+  }
+  .card :global(img) {
+    width: 100%;
+    border: 1px solid var(--line);
+    transition: transform 0.2s ease;
+  }
+  .card:hover :global(img) {
+    transform: translateY(-3px);
+  }
+  h3 {
+    font-size: 1.15rem;
+    margin: 0.75rem 0 0.15rem;
+  }
+  .meta {
+    margin: 0;
+  }
+</style>

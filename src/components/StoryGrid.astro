@@ -1,0 +1,28 @@
+---
+import StoryCard from './StoryCard.astro';
+import type { Story } from '../lib/content';
+
+interface Props {
+  stories: Story[];
+}
+
+const { stories } = Astro.props;
+---
+
+<div class="grid">
+  {stories.map((story) => <StoryCard story={story} />)}
+</div>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+  @media (max-width: 480px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
