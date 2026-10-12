@@ -1,73 +1,20 @@
 ---
-import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
 import StoryGrid from '../components/StoryGrid.astro';
-import { getStories, getPages, formatDate } from '../lib/content';
+import { getStories } from '../lib/content';
 
-const [latest, ...older] = await getStories();
-const latestPages = latest ? getPages(latest.id).length : 0;
+const stories = await getStories();
 ---
 
-<Base image={latest?.data.cover}>
-  {
-    latest ? (
-      <section class="wrap section latest">
-        <a class="cover" href={`/comics/${latest.id}/`}>
-          <Image
-            src={latest.data.cover}
-            alt={`Cover of ${latest.data.title}`}
-            widths={[480, 720, 960]}
-            sizes="(min-width: 768px) 40vw, 100vw"
-            loading="eager"
-          />
-        </a>
-        <div class="intro">
-          <p class="meta">Latest story</p>
-          <h1>{latest.data.title}</h1>
-          <p class="meta">
-            {formatDate(latest.data.date)} · {latestPages} {latestPages === 1 ? 'page' : 'pages'}
-          </p>
-          <p class="blurb">{latest.data.blurb}</p>
-          <a class="button" href={`/comics/${latest.id}/`}>Read</a>
-        </div>
-      </section>
-    ) : (
-      <section class="wrap section">
-        <h1>Comics</h1>
+<Base image={stories[0]?.data.cover}>
+  <section class="wrap section">
+    <h1 class="visually-hidden">Comics</h1>
+    {
+      stories.length > 0 ? (
+        <StoryGrid stories={stories} featureFirst />
+      ) : (
         <p class="muted">The first story is coming soon.</p>
-      </section>
-    )
-  }
-
-  {
-    older.length > 0 && (
-      <section class="wrap section">
-        <h2>More stories</h2>
-        <StoryGrid stories={older} />
-      </section>
-    )
-  }
-</Base>
-
-<style>
-  .latest {
-    display: grid;
-    gap: clamp(1.5rem, 5vw, 4rem);
-    align-items: center;
-  }
-  @media (min-width: 768px) {
-    .latest {
-      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      )
     }
-  }
-  .cover :global(img) {
-    width: 100%;
-    border: 1px solid var(--line);
-    box-shadow: 0 12px 40px -18px rgb(0 0 0 / 0.35);
-  }
-  .blurb {
-    font-family: var(--serif);
-    font-size: 1.25rem;
-    max-width: 32rem;
-  }
-</style>
+  </section>
+</Base>

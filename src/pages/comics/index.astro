@@ -6,9 +6,9 @@ import { getStories } from '../../lib/content';
 const stories = await getStories();
 ---
 
-<Base title="Comics" description="All comic stories by Ivan Bongiorni.">
+<Base title="Comics" description="All comic stories by Ivan Bongiorni." image={stories[0]?.data.cover}>
   <section class="wrap section">
     <h1>Comics</h1>
-    <StoryGrid stories={stories} />
+    <StoryGrid stories={stories} featureFirst />
   </section>
 </Base>

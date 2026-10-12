@@ -4,21 +4,30 @@ import { getPages, formatDate, type Story } from '../lib/content';
 
 interface Props {
   story: Story;
+  // The latest story: double-width tile with its blurb.
+  featured?: boolean;
 }
 
-const { story } = Astro.props;
+const { story, featured = false } = Astro.props;
 const pageCount = getPages(story.id).length;
 ---
 
-<a class="card" href={`/comics/${story.id}/`}>
+<a class:list={['card', { featured }]} href={`/comics/${story.id}/`}>
   <Image
     src={story.data.cover}
     alt={`Cover of ${story.data.title}`}
-    widths={[320, 480, 720]}
-    sizes="(min-width: 1000px) 380px, (min-width: 600px) 45vw, 50vw"
+    widths={featured ? [640, 960, 1280] : [320, 480, 720]}
+    sizes={featured
+      ? '(min-width: 1000px) 460px, (min-width: 700px) 40vw, 100vw'
+      : '(min-width: 1000px) 380px, (min-width: 600px) 33vw, 50vw'}
+    loading={featured ? 'eager' : 'lazy'}
   />
-  <h3>{story.data.title}</h3>
-  <p class="meta">{formatDate(story.data.date)} · {pageCount} {pageCount === 1 ? 'page' : 'pages'}</p>
+  <div class="text">
+    {featured && <p class="label">Latest story</p>}
+    <h3>{story.data.title}</h3>
+    <p class="meta">{formatDate(story.data.date)} · {pageCount} {pageCount === 1 ? 'page' : 'pages'}</p>
+    {featured && <p class="blurb">{story.data.blurb}</p>}
+  </div>
 </a>
 
 <style>
@@ -34,11 +43,46 @@ const pageCount = getPages(story.id).length;
   .card:hover :global(img) {
     transform: translateY(-3px);
   }
+  .text {
+    padding-top: 0.75rem;
+  }
   h3 {
     font-size: 1.15rem;
-    margin: 0.75rem 0 0.15rem;
+    margin: 0 0 0.15rem;
   }
-  .meta {
+  p {
     margin: 0;
+  }
+
+  @media (min-width: 700px) {
+    .featured {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      gap: clamp(1rem, 2.5vw, 2rem);
+      align-items: end;
+    }
+    .featured .text {
+      padding: 0 0 0.5rem;
+    }
+  }
+  .featured :global(img) {
+    box-shadow: 0 14px 40px -20px rgb(0 0 0 / 0.45);
+  }
+  .featured h3 {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  }
+  .label {
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  .blurb {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    margin-top: 0.4rem;
+    max-width: 34rem;
   }
 </style>
