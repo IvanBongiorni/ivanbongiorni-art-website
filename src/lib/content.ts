@@ -36,5 +36,5 @@ export function getPages(storyId: string): ImageMetadata[] {
 }
 
 export function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long' });
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 }

@@ -35,7 +35,7 @@ src/content/comics/my-story/
 ---
 title: My Story
 date: 2026-11-01
-blurb: One line that makes people want to read it.
+description: One or two sentences that make people want to read it.
 cover: ./cover.jpg
 draft: true        # visible in `npm run dev` only; set to false to publish
 ---

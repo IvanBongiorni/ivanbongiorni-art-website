@@ -13,7 +13,7 @@ export async function GET(context: APIContext) {
     site: context.site!,
     items: stories.map((story) => ({
       title: story.data.title,
-      description: story.data.blurb,
+      description: story.data.description,
       pubDate: story.data.date,
       link: `/comics/${story.id}/`,
     })),

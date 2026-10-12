@@ -15,8 +15,10 @@ const comics = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
+      // Publication date, shown on the cards and the story page.
       date: z.coerce.date(),
-      blurb: z.string(),
+      // One or two sentences, shown on the cards, the story page and link previews.
+      description: z.string().max(280, 'Keep the description to one or two sentences'),
       cover: image(),
       // Only one-shots for now. A serial will add a chapters layer later
       // without changing the /comics/<story-id> URL.

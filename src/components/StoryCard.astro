@@ -4,7 +4,7 @@ import { getPages, formatDate, type Story } from '../lib/content';
 
 interface Props {
   story: Story;
-  // The latest story: double-width tile with its blurb.
+  // The latest story: double-width tile with larger text.
   featured?: boolean;
 }
 
@@ -25,8 +25,11 @@ const pageCount = getPages(story.id).length;
   <div class="text">
     {featured && <p class="label">Latest story</p>}
     <h3>{story.data.title}</h3>
-    <p class="meta">{formatDate(story.data.date)} · {pageCount} {pageCount === 1 ? 'page' : 'pages'}</p>
-    {featured && <p class="blurb">{story.data.blurb}</p>}
+    <p class="meta">
+      <time datetime={story.data.date.toISOString().slice(0, 10)}>{formatDate(story.data.date)}</time>
+      {' · '}{pageCount} {pageCount === 1 ? 'page' : 'pages'}
+    </p>
+    <p class="description">{story.data.description}</p>
   </div>
 </a>
 
@@ -79,10 +82,14 @@ const pageCount = getPages(story.id).length;
     text-transform: uppercase;
     margin-bottom: 0.25rem;
   }
-  .blurb {
+  .description {
     font-family: var(--serif);
+    font-size: 0.98rem;
+    line-height: 1.45;
+    margin-top: 0.35rem;
+  }
+  .featured .description {
     font-size: 1.15rem;
-    margin-top: 0.4rem;
     max-width: 34rem;
   }
 </style>

@@ -1,7 +1,7 @@
 ---
 title: The Lighthouse
 date: 2026-09-20
-blurb: A keeper, a storm, and a light that refuses to go out.
+description: A keeper, a storm, and a light that refuses to go out.
 cover: ./cover.jpg
 draft: false
 ---
