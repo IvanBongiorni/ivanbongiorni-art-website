@@ -15,7 +15,7 @@ const pageCount = getPages(story.id).length;
     src={story.data.cover}
     alt={`Cover of ${story.data.title}`}
     widths={[320, 480, 720]}
-    sizes="(min-width: 1000px) 280px, (min-width: 600px) 30vw, 45vw"
+    sizes="(min-width: 1000px) 380px, (min-width: 600px) 45vw, 50vw"
   />
   <h3>{story.data.title}</h3>
   <p class="meta">{formatDate(story.data.date)} · {pageCount} {pageCount === 1 ? 'page' : 'pages'}</p>
