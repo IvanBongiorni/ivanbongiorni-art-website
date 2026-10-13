@@ -4,6 +4,7 @@ import type { ArtCategory } from '../site.config';
 
 export type Story = CollectionEntry<'comics'>;
 export type Artwork = CollectionEntry<'art'>;
+export type ProcessItem = CollectionEntry<'process'>;
 
 // Drafts show up in `npm run dev` but are left out of the published site.
 const published = ({ data }: { data: { draft: boolean } }) => import.meta.env.DEV || !data.draft;
@@ -18,6 +19,11 @@ export async function getStories(): Promise<Story[]> {
 export async function getArtworks(category?: ArtCategory): Promise<Artwork[]> {
   const all = await getCollection('art', published);
   return all.filter((a) => !category || a.data.category === category).sort(newestFirst);
+}
+
+export async function getProcess(storyId?: string): Promise<ProcessItem[]> {
+  const all = await getCollection('process', published);
+  return all.filter((p) => !storyId || p.data.story === storyId).sort(newestFirst);
 }
 
 const pageFiles = import.meta.glob<{ default: ImageMetadata }>(

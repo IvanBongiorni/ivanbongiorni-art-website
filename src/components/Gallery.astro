@@ -1,46 +1,53 @@
 ---
-// Masonry grid of artworks. Clicking one opens it full screen (PhotoSwipe).
+// Masonry grid of images. Clicking one opens it full screen (PhotoSwipe).
 import { Image, getImage } from 'astro:assets';
-import type { Artwork } from '../lib/content';
+import type { ImageMetadata } from 'astro';
 
-interface Props {
-  artworks: Artwork[];
+export interface GalleryItem {
+  id: string;
+  image: ImageMetadata;
+  // Alt text and the label under the thumbnail.
+  title: string;
+  // Optional second line under the thumbnail.
+  detail?: string;
+  // Shown in the full-screen view.
+  caption: string;
 }
 
-const { artworks } = Astro.props;
+interface Props {
+  items: GalleryItem[];
+}
 
 const items = await Promise.all(
-  artworks.map(async (art) => {
-    const { image } = art.data;
+  Astro.props.items.map(async (item) => {
+    const { image } = item;
     const width = Math.min(image.width, 2000);
     const height = Math.round((image.height * width) / image.width);
     const full = await getImage({ src: image, width, format: 'webp' });
-    const caption = [art.data.title, art.data.medium, art.data.size, art.data.date.getFullYear()]
-      .filter(Boolean)
-      .join(' · ');
-    return { art, full: full.src, width, height, caption };
+    return { item, full: full.src, width, height };
   }),
 );
 ---
 
 <div class="gallery" data-gallery>
   {
-    items.map(({ art, full, width, height, caption }) => (
+    items.map(({ item, full, width, height }) => (
       <a
         class="item"
         href={full}
         data-pswp-width={width}
         data-pswp-height={height}
-        data-caption={caption}
-        id={art.id}
+        data-caption={item.caption}
+        id={item.id}
       >
         <Image
-          src={art.data.image}
-          alt={art.data.title}
+          src={item.image}
+          alt={item.title}
           widths={[360, 540, 720]}
           sizes="(min-width: 1000px) 360px, (min-width: 600px) 45vw, 100vw"
         />
-        <span class="caption">{art.data.title}</span>
+        <span class="caption">{item.title}</span>
+        {item.detail && <span class="caption detail">{item.detail}</span>}
       </a>
     ))
   }
@@ -65,6 +72,10 @@ const items = await Promise.all(
     margin-top: 0.4rem;
     font-size: 0.875rem;
     color: var(--muted);
+  }
+  .detail {
+    margin-top: 0;
+    font-size: 0.8rem;
   }
 </style>
 

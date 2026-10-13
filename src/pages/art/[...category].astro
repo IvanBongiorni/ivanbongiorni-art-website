@@ -1,7 +1,8 @@
 ---
 // /art/ shows everything, /art/<category>/ one category.
 import Base from '../../layouts/Base.astro';
-import ArtGallery from '../../components/ArtGallery.astro';
+import Gallery from '../../components/Gallery.astro';
+import Tabs from '../../components/Tabs.astro';
 import { getArtworks } from '../../lib/content';
 import { ART_CATEGORIES, type ArtCategory } from '../../site.config';
 
@@ -22,38 +23,19 @@ const tabs = [
     active: key === category,
   })),
 ];
+
+const items = artworks.map((art) => ({
+  id: art.id,
+  image: art.data.image,
+  title: art.data.title,
+  caption: [art.data.title, art.data.medium, art.data.size, art.data.date.getFullYear()].filter(Boolean).join(' · '),
+}));
 ---
 
 <Base title={title} description={`${title} by Ivan Bongiorni.`} image={artworks[0]?.data.image}>
   <section class="wrap section">
     <h1 class="visually-hidden">{title}</h1>
-    <nav class="tabs" aria-label="Art categories">
-      {tabs.map((t) => (
-        <a href={t.href} aria-current={t.active ? 'page' : undefined}>{t.label}</a>
-      ))}
-    </nav>
-    {artworks.length > 0 ? <ArtGallery artworks={artworks} /> : <p class="muted">Nothing here yet.</p>}
+    <Tabs label="Art categories" tabs={tabs} />
+    {items.length > 0 ? <Gallery items={items} /> : <p class="muted">Nothing here yet.</p>}
   </section>
 </Base>
-
-<style>
-  .tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 2rem;
-  }
-  .tabs a {
-    color: var(--muted);
-    text-decoration: none;
-  }
-  .tabs a:hover,
-  .tabs a[aria-current='page'] {
-    color: var(--ink);
-  }
-  .tabs a[aria-current='page'] {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 0.45em;
-  }
-</style>

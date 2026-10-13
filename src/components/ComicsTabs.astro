@@ -1,0 +1,16 @@
+---
+// Stories / Work in progress switch at the top of the comics pages.
+// Hidden until there is some work in progress to show.
+import Tabs from './Tabs.astro';
+import { getProcess } from '../lib/content';
+
+const path = Astro.url.pathname;
+const process = await getProcess();
+
+const tabs = [
+  { href: '/comics/', label: 'Stories', active: path === '/' || path === '/comics/' },
+  { href: '/comics/process/', label: 'Work in progress', active: path.startsWith('/comics/process') },
+];
+---
+
+{process.length > 0 && <Tabs label="Comics" tabs={tabs} />}

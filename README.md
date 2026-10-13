@@ -49,6 +49,31 @@ The newest story (by `date`) is featured on the home page.
 On wide screens the reader shows one page at a time (arrow keys, buttons, or click the page).
 On phones the pages are stacked for vertical scrolling.
 
+## Adding work in progress
+
+Unfinished pages, thumbnails, pencils and inks go on `/comics/process/` (the **Work in progress** tab under Comics).
+They are grouped by story, and every image shows the date it was drawn, as a public record of how the work was made.
+
+Put the image and a Markdown file with the same name in `src/content/process/` (subfolders are fine):
+
+```
+src/content/process/lighthouse-02-pencils.jpg
+src/content/process/lighthouse-02-pencils.md
+```
+
+```md
+---
+title: The Lighthouse, page 2
+date: 2026-08-14             # the day you drew it
+image: ./lighthouse-02-pencils.jpg
+story: the-lighthouse        # story folder name, or a working title for an unpublished story
+stage: Pencils               # optional: Thumbnails, Pencils, Inks, ...
+---
+```
+
+When `story` matches a published story, its heading links to the story, and the story page links back
+with "See how this story was drawn". The tab only appears once there is at least one entry.
+
 ## Adding art
 
 Put the image and a Markdown file with the same name in `src/content/art/`:
