@@ -4,6 +4,7 @@
 import Base from '../../layouts/Base.astro';
 import ComicsTabs from '../../components/ComicsTabs.astro';
 import Gallery, { type GalleryItem } from '../../components/Gallery.astro';
+import Newsletter from '../../components/Newsletter.astro';
 import { getProcess, getStories, formatDate } from '../../lib/content';
 
 const [process, stories] = await Promise.all([getProcess(), getStories()]);
@@ -36,6 +37,7 @@ for (const item of process) {
   title="Work in progress"
   description="Unfinished pages, sketches and pencils from Ivan Bongiorni's comics."
   image={process[0]?.data.image}
+  newsletter={false}
 >
   <section class="wrap section">
     <h1 class="visually-hidden">Work in progress</h1>
@@ -55,6 +57,9 @@ for (const item of process) {
         <p class="muted">Nothing here yet.</p>
       )
     }
+  </section>
+  <section class="wrap signup">
+    <Newsletter centered heading="Follow along" pitch="Get an email when the stories you see taking shape here are finished." />
   </section>
 </Base>
 

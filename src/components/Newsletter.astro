@@ -3,20 +3,23 @@ import { NEWSLETTER } from '../site.config';
 
 interface Props {
   heading?: string;
+  pitch?: string;
+  // Centered when it stands on its own at the end of a page; left-aligned in the footer.
+  centered?: boolean;
 }
 
-const { heading = 'Get notified of new stories' } = Astro.props;
+const { heading = 'Get notified of new stories', pitch = NEWSLETTER.pitch, centered = false } = Astro.props;
 const action = `https://app.kit.com/forms/${NEWSLETTER.kitFormId}/subscriptions`;
 ---
 
 {
   NEWSLETTER.kitFormId && (
-    <form class="newsletter" action={action} method="post">
+    <form class:list={['newsletter', { centered }]} id="newsletter" action={action} method="post">
       <p class="heading">{heading}</p>
-      <p class="muted">{NEWSLETTER.pitch}</p>
+      <p class="muted">{pitch}</p>
       <div class="row">
         <input type="email" name="email_address" aria-label="Email address" placeholder="you@example.com" required autocomplete="email" />
-        <button class="button" type="submit">Subscribe</button>
+        <button class="button" type="submit">Notify me</button>
       </div>
     </form>
   )
@@ -25,6 +28,13 @@ const action = `https://app.kit.com/forms/${NEWSLETTER.kitFormId}/subscriptions`
 <style>
   .newsletter {
     max-width: 30rem;
+  }
+  .centered {
+    margin-inline: auto;
+    text-align: center;
+  }
+  .centered .row {
+    justify-content: center;
   }
   .heading {
     font-family: var(--serif);

@@ -27,7 +27,7 @@ const hasProcess = (await getProcess(story.id)).length > 0;
 const more = stories.filter((s) => s.id !== story.id).slice(0, 4);
 ---
 
-<Base title={story.data.title} description={story.data.description} image={story.data.cover}>
+<Base title={story.data.title} description={story.data.description} image={story.data.cover} newsletter={false}>
   <header class="wrap story-head">
     <h1>{story.data.title}</h1>
     <p class="meta">
@@ -51,7 +51,7 @@ const more = stories.filter((s) => s.id !== story.id).slice(0, 4);
       )
     }
     {hasProcess && <a class="process-link" href={`/comics/process/#${story.id}`}>See how this story was drawn</a>}
-    <Newsletter heading="Want to read the next one?" />
+    <Newsletter centered heading="Want to read the next one?" />
   </section>
 
   {

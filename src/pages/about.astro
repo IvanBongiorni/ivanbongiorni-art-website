@@ -5,7 +5,11 @@ import Newsletter from '../components/Newsletter.astro';
 import { SITE } from '../site.config';
 ---
 
-<Base title="About" description={`About ${SITE.author}: comics, illustration, painting and photography.`}>
+<Base
+  title="About"
+  description={`About ${SITE.author}: comics, illustration, painting and photography.`}
+  newsletter={false}
+>
   <section class="wrap narrow section">
     <h1>About</h1>
 

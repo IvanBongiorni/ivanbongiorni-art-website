@@ -2,12 +2,13 @@
 import Base from '../layouts/Base.astro';
 import StoryGrid from '../components/StoryGrid.astro';
 import ComicsTabs from '../components/ComicsTabs.astro';
+import Newsletter from '../components/Newsletter.astro';
 import { getStories } from '../lib/content';
 
 const stories = await getStories();
 ---
 
-<Base image={stories[0]?.data.cover}>
+<Base image={stories[0]?.data.cover} newsletter={false}>
   <section class="wrap section">
     <h1 class="visually-hidden">Comics</h1>
     <ComicsTabs />
@@ -18,5 +19,8 @@ const stories = await getStories();
         <p class="muted">The first story is coming soon.</p>
       )
     }
+  </section>
+  <section class="wrap signup">
+    <Newsletter centered />
   </section>
 </Base>
