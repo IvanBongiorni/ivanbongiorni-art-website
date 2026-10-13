@@ -1,12 +1,13 @@
 ---
 import { SOCIALS } from '../site.config';
+import { STRINGS, getLang } from '../i18n';
 
 const links = SOCIALS.filter((s) => s.url);
 ---
 
 {
   links.length > 0 && (
-    <ul class="socials" aria-label="Elsewhere">
+    <ul class="socials" aria-label={STRINGS[getLang(Astro.currentLocale)].footer.elsewhere}>
       {links.map((l) => (
         <li>
           <a href={l.url} rel="me noopener" target="_blank">

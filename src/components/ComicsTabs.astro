@@ -3,14 +3,17 @@
 // Hidden until there is some work in progress to show.
 import Tabs from './Tabs.astro';
 import { getProcess } from '../lib/content';
+import { STRINGS, getLang, localize, unlocalize } from '../i18n';
 
-const path = Astro.url.pathname;
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang];
+const path = unlocalize(Astro.url.pathname);
 const process = await getProcess();
 
 const tabs = [
-  { href: '/comics/', label: 'Stories', active: path === '/' || path === '/comics/' },
-  { href: '/comics/process/', label: 'Work in progress', active: path.startsWith('/comics/process') },
+  { href: localize('/comics/', lang), label: t.comics.stories, active: path === '/' || path === '/comics/' },
+  { href: localize('/comics/process/', lang), label: t.process.title, active: path.startsWith('/comics/process') },
 ];
 ---
 
-{process.length > 0 && <Tabs label="Comics" tabs={tabs} />}
+{process.length > 0 && <Tabs label={t.comics.title} tabs={tabs} />}

@@ -1,0 +1,8 @@
+---
+import Art from '../../../views/Art.astro';
+import { artPaths } from '../../../lib/content';
+
+export const getStaticPaths = artPaths;
+---
+
+<Art />

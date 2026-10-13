@@ -1,0 +1,121 @@
+---
+// One story in one language. The page files in src/pages/comics/ and
+// src/pages/it/comics/ pick the stories for their language.
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Reader from '../components/Reader.astro';
+import Newsletter from '../components/Newsletter.astro';
+import StoryGrid from '../components/StoryGrid.astro';
+import { getStories, getPages, getProcess, formatDate, storyId, storyLang, type Story } from '../lib/content';
+import { STRINGS, localize } from '../i18n';
+
+interface Props {
+  story: Story;
+  // Every story in the same language.
+  stories: Story[];
+}
+
+const { story, stories } = Astro.props;
+const id = storyId(story);
+const lang = storyLang(story);
+const t = STRINGS[lang];
+const pages = getPages(id, lang);
+const { Content } = await render(story);
+const hasNote = Boolean(story.body?.trim());
+const hasProcess = (await getProcess(id)).length > 0;
+const more = stories.filter((s) => s.id !== story.id).slice(0, 4);
+
+// The languages this story is published in, for the language switch.
+const translations = Object.fromEntries(
+  (await getStories())
+    .filter((s) => storyId(s) === id)
+    .map((s) => [storyLang(s), localize(`/comics/${id}/`, storyLang(s))]),
+);
+---
+
+<Base
+  title={story.data.title}
+  description={story.data.description}
+  image={story.data.cover}
+  newsletter={false}
+  translations={translations}
+>
+  <header class="wrap story-head">
+    <h1>{story.data.title}</h1>
+    <p class="meta">
+      {t.comics.published} <time datetime={story.data.date.toISOString().slice(0, 10)}>{formatDate(story.data.date, lang)}</time>
+      {' · '}{t.comics.pages(pages.length)}
+    </p>
+    <p class="description">{story.data.description}</p>
+  </header>
+
+  <div class="reader-wrap">
+    <Reader title={story.data.title} pages={pages} />
+  </div>
+
+  <section class="wrap narrow section end">
+    <p class="the-end">{t.comics.end}</p>
+    {
+      hasNote && (
+        <div class="note">
+          <Content />
+        </div>
+      )
+    }
+    {hasProcess && <a class="process-link" href={localize(`/comics/process/#${id}`, lang)}>{t.comics.howDrawn}</a>}
+    <Newsletter centered heading={t.newsletter.storyEnd} />
+  </section>
+
+  {
+    more.length > 0 && (
+      <section class="wrap section">
+        <h2>{t.comics.more}</h2>
+        <StoryGrid stories={more} />
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .story-head {
+    padding-top: clamp(1.5rem, 4vw, 3rem);
+    padding-bottom: 1.5rem;
+    text-align: center;
+  }
+  .description {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    max-width: 36rem;
+    margin: 0 auto;
+  }
+  .reader-wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  @media (min-width: 768px) {
+    .reader-wrap {
+      padding: 0 var(--gutter);
+    }
+  }
+  .the-end {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .end {
+    display: grid;
+    gap: 2rem;
+    justify-items: center;
+  }
+  .note {
+    width: 100%;
+  }
+  .process-link {
+    color: var(--muted);
+  }
+  .process-link:hover {
+    color: var(--ink);
+  }
+</style>

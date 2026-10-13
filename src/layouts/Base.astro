@@ -4,6 +4,7 @@ import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../site.config';
+import { DEFAULT_LANG, LANGS, STRINGS, getLang, localize, unlocalize, type Lang } from '../i18n';
 import '../styles/global.css';
 
 interface Props {
@@ -13,18 +14,31 @@ interface Props {
   image?: ImageMetadata;
   // Set to false when the page shows its own newsletter form, so the footer doesn't repeat it.
   newsletter?: boolean;
+  // This page in each language. Defaults to the same path in every language;
+  // pages that aren't translated (e.g. a story only published in English) pass fewer.
+  translations?: Partial<Record<Lang, string>>;
 }
 
-const { title, description = SITE.description, image, newsletter = true } = Astro.props;
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang];
+const path = unlocalize(Astro.url.pathname);
+const {
+  title,
+  description = t.siteDescription,
+  image,
+  newsletter = true,
+  translations = Object.fromEntries(LANGS.map((l) => [l, localize(path, l)])),
+} = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternates = LANGS.filter((l) => translations[l]).map((l) => ({ lang: l, href: new URL(translations[l]!, Astro.site) }));
 const ogImage = image
   ? new URL((await getImage({ src: image, width: 1200, format: 'jpg' })).src, Astro.site)
   : undefined;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -32,12 +46,20 @@ const ogImage = image
     <meta name="description" content={description} />
     <meta name="author" content={SITE.author} />
     <link rel="canonical" href={canonical} />
+    {
+      alternates.length > 1 &&
+        alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)
+    }
+    {alternates.length > 1 && translations[DEFAULT_LANG] && (
+      <link rel="alternate" hreflang="x-default" href={new URL(translations[DEFAULT_LANG], Astro.site)} />
+    )}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title={`${SITE.title} · new stories`} href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${SITE.title} · ${t.rssTitle}`} href={localize('/rss.xml', lang)} />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:locale" content={t.ogLocale} />
     <meta property="og:title" content={title ?? SITE.title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
@@ -45,7 +67,7 @@ const ogImage = image
     <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
   </head>
   <body>
-    <Header />
+    <Header translations={translations} />
     <main>
       <slot />
     </main>

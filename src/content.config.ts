@@ -3,14 +3,19 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 // Each story is a folder: src/content/comics/<story-id>/
-//   index.md      metadata (below) + optional author's note as the body
-//   cover.jpg     cover image
-//   pages/        page images, read in filename order (01.jpg, 02.jpg, ...)
+//   en.md, it.md  metadata (below) + optional author's note as the body,
+//                 one file per language the story is published in
+//   cover.jpg     cover image (each language file can point to its own)
+//   pages/en/, pages/it/
+//                 page images for each language, read in filename order
+//                 (01.jpg, 02.jpg, ...). Images directly in pages/ are used by
+//                 any language without its own folder (e.g. wordless stories).
+// Entry ids are '<story-id>/<lang>'; see storyId() and storyLang() in src/lib/content.ts.
 const comics = defineCollection({
   loader: glob({
     base: './src/content/comics',
-    pattern: '*/index.md',
-    generateId: ({ entry }) => entry.split('/')[0],
+    pattern: '*/{en,it}.md',
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
   }),
   schema: ({ image }) =>
     z.object({
@@ -38,6 +43,8 @@ const art = defineCollection({
       image: image(),
       medium: z.string().optional(),
       size: z.string().optional(),
+      // Italian title and medium. The English ones are shown when missing.
+      it: z.object({ title: z.string().optional(), medium: z.string().optional() }).optional(),
       draft: z.boolean().default(false),
     }),
 });
@@ -58,6 +65,8 @@ const process = defineCollection({
       story: z.string().optional(),
       // Free text, e.g. Thumbnails, Pencils, Inks, Colours.
       stage: z.string().optional(),
+      // Italian title and stage. The English ones are shown when missing.
+      it: z.object({ title: z.string().optional(), stage: z.string().optional() }).optional(),
       draft: z.boolean().default(false),
     }),
 });

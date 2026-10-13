@@ -1,26 +1,63 @@
 ---
 import { NEWSLETTER, SITE } from '../site.config';
+import { LANGS, STRINGS, getLang, localize, unlocalize, type Lang } from '../i18n';
+
+interface Props {
+  // This page in each language, for the language switch.
+  translations: Partial<Record<Lang, string>>;
+}
+
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang];
 
 const links = [
-  { href: '/', label: 'Comics' },
-  { href: '/art/', label: 'Art' },
-  { href: '/about/', label: 'About' },
+  { href: '/', label: t.nav.comics },
+  { href: '/art/', label: t.nav.art },
+  { href: '/about/', label: t.nav.about },
 ];
 
-const path = Astro.url.pathname;
+const path = unlocalize(Astro.url.pathname);
 const isCurrent = (href: string) =>
   href === '/' ? path === '/' || path.startsWith('/comics') : path.startsWith(href);
+
+// Link to this page in the other language, or to its home page if this page isn't translated.
+const other = LANGS.find((l) => l !== lang)!;
+const switchHref = Astro.props.translations[other] ?? localize('/', other);
 ---
 
 <header class="site-header">
   <div class="wrap bar">
-    <a class="name" href="/">{SITE.title}</a>
-    <nav aria-label="Main">
+    <a class="name" href={localize('/', lang)}>{SITE.title}</a>
+    <nav aria-label={t.nav.label}>
       {links.map((l) => (
-        <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
+        <a href={localize(l.href, lang)} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
-      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">Update me</a>}
+      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">{t.nav.updateMe}</a>}
     </nav>
+    <a class="lang" href={switchHref} hreflang={other} lang={other} title={STRINGS[other].switchTo}>
+      {
+        other === 'it' ? (
+          <svg class="flag" viewBox="0 0 3 2" width="18" height="12" aria-hidden="true">
+            <path fill="#009246" d="M0 0h1v2H0z" />
+            <path fill="#fff" d="M1 0h1v2H1z" />
+            <path fill="#ce2b37" d="M2 0h1v2H2z" />
+          </svg>
+        ) : (
+          <svg class="flag" viewBox="0 0 60 30" width="22" height="12" aria-hidden="true">
+            <clipPath id="flag-uk-diagonals">
+              <path d="M30 15h30v15zv15H0zH0V0zV0h30z" />
+            </clipPath>
+            <path fill="#012169" d="M0 0h60v30H0z" />
+            <path stroke="#fff" stroke-width="6" d="M0 0l60 30m0-30L0 30" />
+            <path stroke="#c8102e" stroke-width="4" d="M0 0l60 30m0-30L0 30" clip-path="url(#flag-uk-diagonals)" />
+            <path stroke="#fff" stroke-width="10" d="M30 0v30M0 15h60" />
+            <path stroke="#c8102e" stroke-width="6" d="M30 0v30M0 15h60" />
+          </svg>
+        )
+      }
+      <span aria-hidden="true">{other.toUpperCase()}</span>
+      <span class="visually-hidden">{STRINGS[other].switchTo}</span>
+    </a>
   </div>
 </header>
 
@@ -32,8 +69,7 @@ const isCurrent = (href: string) =>
     height: var(--header-h);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: clamp(0.75rem, 3vw, 2rem);
   }
   .name {
     font-family: var(--serif);
@@ -41,31 +77,65 @@ const isCurrent = (href: string) =>
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
+    margin-right: auto;
   }
   nav {
     display: flex;
-    gap: clamp(1rem, 3vw, 2rem);
+    gap: clamp(0.75rem, 3vw, 2rem);
   }
-  nav a {
+  nav a,
+  .lang {
     text-decoration: none;
     color: var(--muted);
+    white-space: nowrap;
   }
   nav a:hover,
-  nav a[aria-current='page'] {
+  nav a[aria-current='page'],
+  .lang:hover {
     color: var(--ink);
   }
   nav a.subscribe {
     color: var(--accent);
   }
-  /* No room for a fourth link next to the name on phones; the form is at the end of the page. */
-  @media (max-width: 32rem) {
-    nav a.subscribe {
-      display: none;
-    }
-  }
   nav a[aria-current='page'] {
     text-decoration: underline;
     text-decoration-thickness: 2px;
     text-underline-offset: 0.45em;
+  }
+  .lang {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding-left: clamp(0.75rem, 3vw, 2rem);
+    border-left: 1px solid var(--line);
+  }
+  /* Thin edge so the white stripe doesn't disappear into the paper colour. */
+  .flag {
+    border-radius: 1px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
+  }
+  /* On phones: name and language switch on top, the menu on a second row.
+     No room for a fourth link there; the form is at the end of the page. */
+  @media (max-width: 32rem) {
+    .bar {
+      height: auto;
+      flex-wrap: wrap;
+      row-gap: 0.25rem;
+      padding-block: 0.75rem;
+    }
+    nav {
+      order: 1;
+      width: 100%;
+    }
+    nav a.subscribe {
+      display: none;
+    }
+    .lang {
+      padding-left: 0;
+      border-left: 0;
+    }
   }
 </style>

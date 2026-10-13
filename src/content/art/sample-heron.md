@@ -5,5 +5,8 @@ category: illustration
 image: ./sample-heron.jpg
 medium: Ink and watercolour on paper
 size: A4
+it:
+  title: Airone
+  medium: Inchiostro e acquerello su carta
 draft: false
 ---

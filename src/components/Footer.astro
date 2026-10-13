@@ -2,6 +2,7 @@
 import Newsletter from './Newsletter.astro';
 import SocialLinks from './SocialLinks.astro';
 import { SITE } from '../site.config';
+import { STRINGS, getLang } from '../i18n';
 
 interface Props {
   // Hide the signup form on pages that already show one in the content.
@@ -10,6 +11,7 @@ interface Props {
 
 const { newsletter = true } = Astro.props;
 const year = new Date().getFullYear();
+const t = STRINGS[getLang(Astro.currentLocale)].footer;
 ---
 
 <footer class="site-footer">
@@ -18,8 +20,8 @@ const year = new Date().getFullYear();
     <div class="side">
       <SocialLinks />
       <p class="meta">
-        © {year} {SITE.author}. All rights reserved.<br />
-        Artwork may not be reproduced without permission.
+        © {year} {SITE.author}. {t.rights}<br />
+        {t.reproduction}
       </p>
     </div>
   </div>

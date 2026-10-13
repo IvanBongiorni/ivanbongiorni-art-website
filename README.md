@@ -15,36 +15,56 @@ npm run build    # type-check and build the site into dist/
 npm run preview  # serve dist/ locally
 ```
 
+## Languages
+
+The site is in English and Italian. English is the default, at the root (`/comics/...`);
+Italian is the same path under `/it/` (`/it/comics/...`). The flag at the top right of every page
+switches to the same page in the other language.
+
+- All interface text (menus, buttons, labels, page descriptions) is in [`src/i18n.ts`](src/i18n.ts), both languages side by side.
+- The About page bio is in [`src/views/About.astro`](src/views/About.astro), one paragraph per language.
+- Each page's layout lives once in `src/views/`; the files in `src/pages/` and `src/pages/it/` only pick the language.
+
 ## Adding a comic story
 
-Create a folder under `src/content/comics/`. The folder name becomes the URL (`/comics/<folder>/`).
+Create a folder under `src/content/comics/`. The folder name becomes the URL
+(`/comics/<folder>/` in English, `/it/comics/<folder>/` in Italian), so use the same folder for both languages.
 
 ```
 src/content/comics/my-story/
-├── index.md       metadata + optional author's note
+├── en.md          English title, description + optional author's note
+├── it.md          Italian title, description + optional author's note
 ├── cover.jpg
 └── pages/
-    ├── 01.jpg
-    ├── 02.jpg
-    └── ...
+    ├── en/
+    │   ├── 01.jpg
+    │   ├── 02.jpg
+    │   └── ...
+    └── it/
+        ├── 01.jpg
+        ├── 02.jpg
+        └── ...
 ```
 
-`index.md`:
+`en.md` (and `it.md`, in Italian):
 
 ```md
 ---
 title: My Story
 date: 2026-11-01
 description: One or two sentences that make people want to read it.
-cover: ./cover.jpg
-draft: true        # visible in `npm run dev` only; set to false to publish
+cover: ./cover.jpg   # can differ per language, e.g. ./cover-it.jpg if the title is lettered on it
+draft: true          # visible in `npm run dev` only; set to false to publish
 ---
 
 Optional author's note, shown after the last page.
 ```
 
-Pages are read in filename order, so use zero-padded numbers (`01.jpg`, `02.jpg`, ..., `10.jpg`).
-The newest story (by `date`) is featured on the home page.
+- A story appears in a language only if it has that language's `.md` file. A story with only `en.md`
+  is English-only; on its page the language switch leads to the Italian home page instead.
+- Pages for a wordless story can go directly in `pages/` (no `en/` or `it/`); every language then uses them.
+- Pages are read in filename order, so use zero-padded numbers (`01.jpg`, `02.jpg`, ..., `10.jpg`).
+- The newest story (by `date`) is featured on the home page.
 
 On wide screens the reader shows one page at a time (arrow keys, buttons, or click the page).
 On phones the pages are stacked for vertical scrolling.
@@ -68,6 +88,9 @@ date: 2026-08-14             # the day you drew it
 image: ./lighthouse-02-pencils.jpg
 story: the-lighthouse        # story folder name, or a working title for an unpublished story
 stage: Pencils               # optional: Thumbnails, Pencils, Inks, ...
+it:                          # optional Italian text; the English is shown where it's missing
+  title: Il faro, pagina 2
+  stage: Matite
 ---
 ```
 
@@ -91,6 +114,9 @@ category: painting          # illustration | painting | photography
 image: ./harbour-at-dusk.jpg
 medium: Oil on canvas       # optional
 size: 50 × 40 cm            # optional
+it:                         # optional Italian text; the English is shown where it's missing
+  title: Porto al tramonto
+  medium: Olio su tela
 ---
 ```
 
@@ -108,6 +134,9 @@ Edit [`src/site.config.ts`](src/site.config.ts) to set:
 - your social links (Instagram, Reddit, Flickr, ...); empty links are hidden
 - the contact email on the About page
 - the Kit newsletter form ID; the signup box stays hidden until it's set
+
+The newsletter wording is in [`src/i18n.ts`](src/i18n.ts). There is one Kit form for both languages.
+The RSS feeds are `/rss.xml` (English) and `/it/rss.xml` (Italian).
 
 ## Deployment (Cloudflare Pages)
 
