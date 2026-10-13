@@ -1,8 +1,8 @@
 // Site-wide settings. Edit this file to change your name, links and newsletter.
+// Text that changes with the language (descriptions, labels) is in src/i18n.ts.
 
 export const SITE = {
   title: 'Ivan Bongiorni',
-  description: 'Comics, illustrations, paintings and photography by Ivan Bongiorni.',
   author: 'Ivan Bongiorni',
   // Public contact address shown on the About page. Leave empty to hide it.
   email: '',
@@ -20,13 +20,9 @@ export const SOCIALS: { name: string; url: string }[] = [
 // the signup box is hidden.
 export const NEWSLETTER = {
   kitFormId: '',
-  pitch: 'One email when a new story is out. Nothing else.',
 };
 
-export const ART_CATEGORIES = {
-  illustration: 'Illustrations',
-  painting: 'Paintings',
-  photography: 'Photography',
-} as const;
+// Labels for each category are in src/i18n.ts (art.categories).
+export const ART_CATEGORIES = ['illustration', 'painting', 'photography'] as const;
 
-export type ArtCategory = keyof typeof ART_CATEGORIES;
+export type ArtCategory = (typeof ART_CATEGORIES)[number];

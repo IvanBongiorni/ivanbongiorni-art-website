@@ -8,4 +8,4 @@ draft: false
 
 This is a sample story. Replace this folder with your own, or delete it.
 
-The body of `index.md` is shown at the end of the story as an author's note. Leave it empty for no note.
+The body of `en.md` is shown at the end of the English story as an author's note. Leave it empty for no note.

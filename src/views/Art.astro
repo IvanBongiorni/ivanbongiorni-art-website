@@ -1,0 +1,42 @@
+---
+// /art/ shows everything, /art/<category>/ one category.
+import Base from '../layouts/Base.astro';
+import Gallery from '../components/Gallery.astro';
+import Tabs from '../components/Tabs.astro';
+import { getArtworks, translated } from '../lib/content';
+import { ART_CATEGORIES, type ArtCategory } from '../site.config';
+import { STRINGS, getLang, localize } from '../i18n';
+
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang].art;
+const category = Astro.params.category as ArtCategory | undefined;
+const artworks = await getArtworks(category);
+const title = category ? t.categories[category] : t.title;
+
+const tabs = [
+  { href: localize('/art/', lang), label: t.all, active: !category },
+  ...ART_CATEGORIES.map((key) => ({
+    href: localize(`/art/${key}/`, lang),
+    label: t.categories[key],
+    active: key === category,
+  })),
+];
+
+const items = artworks.map((art) => {
+  const { title, medium, size, date } = translated(art.data, lang);
+  return {
+    id: art.id,
+    image: art.data.image,
+    title,
+    caption: [title, medium, size, date.getFullYear()].filter(Boolean).join(' · '),
+  };
+});
+---
+
+<Base title={title} description={t.description(title)} image={artworks[0]?.data.image}>
+  <section class="wrap section">
+    <h1 class="visually-hidden">{title}</h1>
+    <Tabs label={t.tabsLabel} tabs={tabs} />
+    {items.length > 0 ? <Gallery items={items} /> : <p class="muted">{STRINGS[lang].nothingYet}</p>}
+  </section>
+</Base>

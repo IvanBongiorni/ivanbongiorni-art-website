@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { SITE } from '../site.config';
+import { STRINGS, getLang } from '../i18n';
+
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang].about;
+---
+
+<Base title={t.title} description={t.description} newsletter={false}>
+  <section class="wrap narrow section">
+    <h1>{t.title}</h1>
+
+    <!-- TODO: replace with your bio, in both languages. -->
+    {
+      lang === 'it' ? (
+        <p>
+          Sono Ivan Bongiorni. Scrivo e disegno brevi storie a fumetti, inchiostrate a mano su carta A3. Dipingo
+          anche, illustro e scatto fotografie.
+        </p>
+      ) : (
+        <p>
+          I'm Ivan Bongiorni. I write and draw short comic stories, inked by hand on A3 paper. I also paint,
+          illustrate and take photographs.
+        </p>
+      )
+    }
+
+    <h2>{t.contact}</h2>
+    {SITE.email && <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>}
+    <SocialLinks />
+
+    <div class="newsletter">
+      <Newsletter />
+    </div>
+  </section>
+</Base>
+
+<style>
+  h2 {
+    margin-top: 2.5rem;
+  }
+  .newsletter {
+    margin-top: 3rem;
+  }
+</style>

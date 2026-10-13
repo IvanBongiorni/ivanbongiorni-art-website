@@ -5,5 +5,8 @@ category: painting
 image: ./sample-still-life.jpg
 medium: Acrylic on board
 size: 30 × 40 cm
+it:
+  title: Natura morta con limoni
+  medium: Acrilico su tavola
 draft: false
 ---

@@ -4,5 +4,8 @@ date: 2026-08-14
 image: ./sample-lighthouse-02-pencils.jpg
 story: sample-the-lighthouse
 stage: Pencils
+it:
+  title: Il faro, pagina 2
+  stage: Matite
 draft: false
 ---

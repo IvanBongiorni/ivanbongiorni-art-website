@@ -1,0 +1,10 @@
+---
+import type { InferGetStaticPropsType } from 'astro';
+import StoryPage from '../../../views/StoryPage.astro';
+import { storyPaths } from '../../../lib/content';
+
+export const getStaticPaths = () => storyPaths('it');
+const { story, stories } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
+---
+
+<StoryPage story={story} stories={stories} />

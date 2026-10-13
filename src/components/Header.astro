@@ -1,26 +1,47 @@
 ---
 import { NEWSLETTER, SITE } from '../site.config';
+import { LANGS, STRINGS, getLang, localize, unlocalize, type Lang } from '../i18n';
+
+interface Props {
+  // This page in each language, for the language switch.
+  translations: Partial<Record<Lang, string>>;
+}
+
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang];
 
 const links = [
-  { href: '/', label: 'Comics' },
-  { href: '/art/', label: 'Art' },
-  { href: '/about/', label: 'About' },
+  { href: '/', label: t.nav.comics },
+  { href: '/art/', label: t.nav.art },
+  { href: '/about/', label: t.nav.about },
 ];
 
-const path = Astro.url.pathname;
+const path = unlocalize(Astro.url.pathname);
 const isCurrent = (href: string) =>
   href === '/' ? path === '/' || path.startsWith('/comics') : path.startsWith(href);
+
+// Link to this page in the other language, or to its home page if this page isn't translated.
+const other = LANGS.find((l) => l !== lang)!;
+const switchHref = Astro.props.translations[other] ?? localize('/', other);
 ---
 
 <header class="site-header">
   <div class="wrap bar">
-    <a class="name" href="/">{SITE.title}</a>
-    <nav aria-label="Main">
+    <a class="name" href={localize('/', lang)}>{SITE.title}</a>
+    <nav aria-label={t.nav.label}>
       {links.map((l) => (
-        <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
+        <a href={localize(l.href, lang)} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
-      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">Update me</a>}
+      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">{t.nav.updateMe}</a>}
     </nav>
+    <a class="lang" href={switchHref} hreflang={other} lang={other} title={STRINGS[other].switchTo}>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9.5" />
+        <path d="M2.5 12h19M12 2.5c2.6 2.6 3.9 5.8 3.9 9.5s-1.3 6.9-3.9 9.5c-2.6-2.6-3.9-5.8-3.9-9.5S9.4 5.1 12 2.5z" />
+      </svg>
+      <span aria-hidden="true">{other.toUpperCase()}</span>
+      <span class="visually-hidden">{STRINGS[other].switchTo}</span>
+    </a>
   </div>
 </header>
 
@@ -32,8 +53,7 @@ const isCurrent = (href: string) =>
     height: var(--header-h);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: clamp(0.75rem, 3vw, 2rem);
   }
   .name {
     font-family: var(--serif);
@@ -41,31 +61,60 @@ const isCurrent = (href: string) =>
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
+    margin-right: auto;
   }
   nav {
     display: flex;
-    gap: clamp(1rem, 3vw, 2rem);
+    gap: clamp(0.75rem, 3vw, 2rem);
   }
-  nav a {
+  nav a,
+  .lang {
     text-decoration: none;
     color: var(--muted);
+    white-space: nowrap;
   }
   nav a:hover,
-  nav a[aria-current='page'] {
+  nav a[aria-current='page'],
+  .lang:hover {
     color: var(--ink);
   }
   nav a.subscribe {
     color: var(--accent);
   }
-  /* No room for a fourth link next to the name on phones; the form is at the end of the page. */
-  @media (max-width: 32rem) {
-    nav a.subscribe {
-      display: none;
-    }
-  }
   nav a[aria-current='page'] {
     text-decoration: underline;
     text-decoration-thickness: 2px;
     text-underline-offset: 0.45em;
+  }
+  .lang {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding-left: clamp(0.75rem, 3vw, 2rem);
+    border-left: 1px solid var(--line);
+  }
+  /* On phones: name and language switch on top, the menu on a second row.
+     No room for a fourth link there; the form is at the end of the page. */
+  @media (max-width: 32rem) {
+    .bar {
+      height: auto;
+      flex-wrap: wrap;
+      row-gap: 0.25rem;
+      padding-block: 0.75rem;
+    }
+    nav {
+      order: 1;
+      width: 100%;
+    }
+    nav a.subscribe {
+      display: none;
+    }
+    .lang {
+      padding-left: 0;
+      border-left: 0;
+    }
   }
 </style>

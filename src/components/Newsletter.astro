@@ -1,5 +1,6 @@
 ---
 import { NEWSLETTER } from '../site.config';
+import { STRINGS, getLang } from '../i18n';
 
 interface Props {
   heading?: string;
@@ -8,7 +9,8 @@ interface Props {
   centered?: boolean;
 }
 
-const { heading = 'Get notified of new stories', pitch = NEWSLETTER.pitch, centered = false } = Astro.props;
+const t = STRINGS[getLang(Astro.currentLocale)].newsletter;
+const { heading = t.heading, pitch = t.pitch, centered = false } = Astro.props;
 const action = `https://app.kit.com/forms/${NEWSLETTER.kitFormId}/subscriptions`;
 ---
 
@@ -18,8 +20,8 @@ const action = `https://app.kit.com/forms/${NEWSLETTER.kitFormId}/subscriptions`
       <p class="heading">{heading}</p>
       <p class="muted">{pitch}</p>
       <div class="row">
-        <input type="email" name="email_address" aria-label="Email address" placeholder="you@example.com" required autocomplete="email" />
-        <button class="button" type="submit">Notify me</button>
+        <input type="email" name="email_address" aria-label={t.email} placeholder={t.placeholder} required autocomplete="email" />
+        <button class="button" type="submit">{t.button}</button>
       </div>
     </form>
   )

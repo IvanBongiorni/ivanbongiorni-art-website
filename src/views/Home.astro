@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import StoryGrid from '../components/StoryGrid.astro';
+import ComicsTabs from '../components/ComicsTabs.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { getStories } from '../lib/content';
+import { STRINGS, getLang } from '../i18n';
+
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang];
+const stories = await getStories(lang);
+---
+
+<Base image={stories[0]?.data.cover} newsletter={false}>
+  <section class="wrap section">
+    <h1 class="visually-hidden">{t.comics.title}</h1>
+    <ComicsTabs />
+    {
+      stories.length > 0 ? (
+        <StoryGrid stories={stories} featureFirst />
+      ) : (
+        <p class="muted">{t.comics.comingSoon}</p>
+      )
+    }
+  </section>
+  <section class="wrap signup">
+    <Newsletter centered />
+  </section>
+</Base>

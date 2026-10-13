@@ -4,5 +4,8 @@ date: 2026-05-03
 category: illustration
 image: ./sample-market.jpg
 medium: Digital
+it:
+  title: Giorno di mercato
+  medium: Digitale
 draft: false
 ---

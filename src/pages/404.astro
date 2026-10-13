@@ -1,11 +1,30 @@
 ---
+// Cloudflare Pages serves this for every missing URL, in either language,
+// so it carries both.
 import Base from '../layouts/Base.astro';
+import { STRINGS } from '../i18n';
+
+const { en, it } = STRINGS;
 ---
 
-<Base title="Page not found">
+<Base title={en.notFound.title} translations={{ en: '/', it: '/it/' }}>
   <section class="wrap narrow section">
-    <h1>Page not found</h1>
-    <p class="muted">This page doesn't exist, or it has moved.</p>
-    <a class="button" href="/">Back to the comics</a>
+    <h1>{en.notFound.title}</h1>
+    <p class="muted">{en.notFound.text}</p>
+    <a class="button" href="/">{en.notFound.back}</a>
+
+    <div lang="it" class="it">
+      <h2>{it.notFound.title}</h2>
+      <p class="muted">{it.notFound.text}</p>
+      <a class="button" href="/it/">{it.notFound.back}</a>
+    </div>
   </section>
 </Base>
+
+<style>
+  .it {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+</style>

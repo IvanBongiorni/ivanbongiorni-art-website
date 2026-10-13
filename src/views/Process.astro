@@ -1,0 +1,81 @@
+---
+// Work in progress: unfinished pages and sketches, grouped by story,
+// most recently worked-on story first. Every image carries its date.
+import Base from '../layouts/Base.astro';
+import ComicsTabs from '../components/ComicsTabs.astro';
+import Gallery, { type GalleryItem } from '../components/Gallery.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { getProcess, getStories, formatDate, storyId, storyLang, translated } from '../lib/content';
+import { STRINGS, getLang, localize } from '../i18n';
+
+const lang = getLang(Astro.currentLocale);
+const t = STRINGS[lang];
+const [process, stories] = await Promise.all([getProcess(), getStories()]);
+
+// Items arrive newest first, so groups come out in order of latest activity.
+const groups = new Map<string, { anchor: string; heading: string; href?: string; items: GalleryItem[] }>();
+for (const item of process) {
+  const key = item.data.story ?? '';
+  // The story in this language if there is one (linked), else in any language (title only).
+  const matches = stories.filter((s) => storyId(s) === key);
+  const story = matches.find((s) => storyLang(s) === lang);
+  if (!groups.has(key)) {
+    groups.set(key, {
+      anchor: key ? key.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'sketches',
+      heading: (story ?? matches[0])?.data.title ?? (key || t.process.sketches),
+      href: story && localize(`/comics/${key}/`, lang),
+      items: [],
+    });
+  }
+  const { title, stage, date } = translated(item.data, lang);
+  const day = formatDate(date, lang);
+  groups.get(key)!.items.push({
+    id: item.id.replaceAll('/', '-'),
+    image: item.data.image,
+    title,
+    detail: [stage, day].filter(Boolean).join(' · '),
+    caption: [title, stage, day].filter(Boolean).join(' · '),
+  });
+}
+---
+
+<Base title={t.process.title} description={t.process.description} image={process[0]?.data.image} newsletter={false}>
+  <section class="wrap section">
+    <h1 class="visually-hidden">{t.process.title}</h1>
+    <ComicsTabs />
+    <p class="intro">{t.process.intro}</p>
+    {
+      groups.size > 0 ? (
+        [...groups.values()].map((group) => (
+          <section class="group" id={group.anchor}>
+            <h2>{group.href ? <a href={group.href}>{group.heading}</a> : group.heading}</h2>
+            <Gallery items={group.items} />
+          </section>
+        ))
+      ) : (
+        <p class="muted">{t.nothingYet}</p>
+      )
+    }
+  </section>
+  <section class="wrap signup">
+    <Newsletter centered heading={t.newsletter.processHeading} pitch={t.newsletter.processPitch} />
+  </section>
+</Base>
+
+<style>
+  .intro {
+    max-width: 36rem;
+    margin-bottom: 2.5rem;
+    font-family: var(--serif);
+    font-size: 1.15rem;
+  }
+  .group + .group {
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+  }
+  h2 a {
+    text-decoration: none;
+  }
+  h2 a:hover {
+    text-decoration: underline;
+  }
+</style>

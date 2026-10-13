@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-import { getPages, formatDate, type Story } from '../lib/content';
+import { getPages, formatDate, storyId, storyLang, type Story } from '../lib/content';
+import { STRINGS, localize } from '../i18n';
 
 interface Props {
   story: Story;
@@ -9,13 +10,15 @@ interface Props {
 }
 
 const { story, featured = false } = Astro.props;
-const pageCount = getPages(story.id).length;
+const lang = storyLang(story);
+const t = STRINGS[lang].comics;
+const pageCount = getPages(storyId(story), lang).length;
 ---
 
-<a class:list={['card', { featured }]} href={`/comics/${story.id}/`}>
+<a class:list={['card', { featured }]} href={localize(`/comics/${storyId(story)}/`, lang)}>
   <Image
     src={story.data.cover}
-    alt={`Cover of ${story.data.title}`}
+    alt={t.cover(story.data.title)}
     widths={featured ? [640, 960, 1280] : [320, 480, 720]}
     sizes={featured
       ? '(min-width: 1000px) 460px, (min-width: 700px) 40vw, 100vw'
@@ -23,11 +26,11 @@ const pageCount = getPages(story.id).length;
     loading={featured ? 'eager' : 'lazy'}
   />
   <div class="text">
-    {featured && <p class="label">Latest story</p>}
+    {featured && <p class="label">{t.latest}</p>}
     <h3>{story.data.title}</h3>
     <p class="meta">
-      <time datetime={story.data.date.toISOString().slice(0, 10)}>{formatDate(story.data.date)}</time>
-      {' · '}{pageCount} {pageCount === 1 ? 'page' : 'pages'}
+      <time datetime={story.data.date.toISOString().slice(0, 10)}>{formatDate(story.data.date, lang)}</time>
+      {' · '}{t.pages(pageCount)}
     </p>
     <p class="description">{story.data.description}</p>
   </div>
