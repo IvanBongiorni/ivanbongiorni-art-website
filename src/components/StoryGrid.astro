@@ -1,0 +1,83 @@
+---
+// Mosaic of story covers. Covers keep their own shape and pack together, and
+// the first story can be featured as a double-width tile inside the mosaic.
+// Without JavaScript it falls back to a plain grid.
+import StoryCard from './StoryCard.astro';
+import type { Story } from '../lib/content';
+
+interface Props {
+  stories: Story[];
+  featureFirst?: boolean;
+}
+
+const { stories, featureFirst = false } = Astro.props;
+---
+
+<div class="mosaic" data-mosaic>
+  {
+    stories.map((story, i) => (
+      <div class:list={['tile', { wide: featureFirst && i === 0 }]}>
+        <StoryCard story={story} featured={featureFirst && i === 0} />
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .mosaic {
+    --gap: clamp(1rem, 2.5vw, 2rem);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--gap);
+    row-gap: var(--gap);
+    grid-auto-flow: dense;
+    align-items: start;
+  }
+  @media (min-width: 700px) {
+    .mosaic {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .wide {
+    grid-column: span 2;
+  }
+
+  /* Masonry packing, switched on by the script: tiny rows, each tile spans
+     as many as its height needs. */
+  .mosaic.is-packed {
+    grid-auto-rows: 4px;
+    row-gap: 0;
+  }
+  .mosaic.is-packed .tile {
+    padding-bottom: var(--gap);
+  }
+</style>
+
+<script>
+  const ROW = 4;
+
+  for (const mosaic of document.querySelectorAll<HTMLElement>('[data-mosaic]')) {
+    const tiles = [...mosaic.querySelectorAll<HTMLElement>('.tile')];
+
+    const pack = () => {
+      mosaic.classList.add('is-packed');
+      for (const tile of tiles) {
+        const content = tile.firstElementChild as HTMLElement;
+        const gap = parseFloat(getComputedStyle(tile).paddingBottom);
+        const rows = Math.ceil((content.getBoundingClientRect().height + gap) / ROW);
+        tile.style.gridRowEnd = `span ${rows}`;
+      }
+    };
+
+    // Re-pack when the width changes (packing itself changes the height).
+    let width = 0;
+    new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width !== width) {
+        width = entry.contentRect.width;
+        pack();
+      }
+    }).observe(mosaic);
+    mosaic.querySelectorAll('img').forEach((img) => img.addEventListener('load', pack));
+    pack();
+  }
+</script>

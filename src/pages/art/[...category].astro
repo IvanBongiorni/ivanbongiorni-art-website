@@ -1,0 +1,59 @@
+---
+// /art/ shows everything, /art/<category>/ one category.
+import Base from '../../layouts/Base.astro';
+import ArtGallery from '../../components/ArtGallery.astro';
+import { getArtworks } from '../../lib/content';
+import { ART_CATEGORIES, type ArtCategory } from '../../site.config';
+
+export function getStaticPaths() {
+  const categories = Object.keys(ART_CATEGORIES) as ArtCategory[];
+  return [undefined, ...categories].map((category) => ({ params: { category } }));
+}
+
+const category = Astro.params.category as ArtCategory | undefined;
+const artworks = await getArtworks(category);
+const title = category ? ART_CATEGORIES[category] : 'Art';
+
+const tabs = [
+  { href: '/art/', label: 'All', active: !category },
+  ...(Object.entries(ART_CATEGORIES) as [ArtCategory, string][]).map(([key, label]) => ({
+    href: `/art/${key}/`,
+    label,
+    active: key === category,
+  })),
+];
+---
+
+<Base title={title} description={`${title} by Ivan Bongiorni.`} image={artworks[0]?.data.image}>
+  <section class="wrap section">
+    <h1 class="visually-hidden">{title}</h1>
+    <nav class="tabs" aria-label="Art categories">
+      {tabs.map((t) => (
+        <a href={t.href} aria-current={t.active ? 'page' : undefined}>{t.label}</a>
+      ))}
+    </nav>
+    {artworks.length > 0 ? <ArtGallery artworks={artworks} /> : <p class="muted">Nothing here yet.</p>}
+  </section>
+</Base>
+
+<style>
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .tabs a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .tabs a:hover,
+  .tabs a[aria-current='page'] {
+    color: var(--ink);
+  }
+  .tabs a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.45em;
+  }
+</style>

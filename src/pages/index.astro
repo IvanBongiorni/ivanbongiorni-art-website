@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import StoryGrid from '../components/StoryGrid.astro';
+import { getStories } from '../lib/content';
+
+const stories = await getStories();
+---
+
+<Base image={stories[0]?.data.cover}>
+  <section class="wrap section">
+    <h1 class="visually-hidden">Comics</h1>
+    {
+      stories.length > 0 ? (
+        <StoryGrid stories={stories} featureFirst />
+      ) : (
+        <p class="muted">The first story is coming soon.</p>
+      )
+    }
+  </section>
+</Base>

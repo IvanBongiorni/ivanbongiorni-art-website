@@ -1,0 +1,183 @@
+---
+// Comic reader.
+// - Wide screens: one page at a time. Arrow keys, the buttons, or clicking the
+//   page turn it. The current page is kept in the URL (#3).
+// - Phones: all pages stacked for vertical scrolling.
+// Without JavaScript every screen gets the vertical layout.
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+
+interface Props {
+  title: string;
+  pages: ImageMetadata[];
+}
+
+const { title, pages } = Astro.props;
+
+// Never upscale: offer the standard sizes below the original, capped at 2000px.
+const widthsFor = (page: ImageMetadata) => [
+  ...[640, 960, 1280, 1600].filter((w) => w < page.width),
+  Math.min(page.width, 2000),
+];
+---
+
+<div class="reader" data-reader>
+  <div class="pages">
+    {
+      pages.map((page, i) => (
+        <figure class="page" data-page={i + 1}>
+          <Picture
+            src={page}
+            formats={['avif', 'webp']}
+            widths={widthsFor(page)}
+            sizes="(min-width: 768px) min(1000px, 90vw), 100vw"
+            alt={`${title}, page ${i + 1} of ${pages.length}`}
+            loading={i === 0 ? 'eager' : 'lazy'}
+          />
+        </figure>
+      ))
+    }
+  </div>
+
+  <div class="controls" hidden>
+    <button type="button" data-prev aria-label="Previous page">←</button>
+    <span class="counter" aria-live="polite"><span data-current>1</span> / {pages.length}</span>
+    <button type="button" data-next aria-label="Next page">→</button>
+  </div>
+</div>
+
+<style>
+  .pages {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .page {
+    margin: 0;
+  }
+  .page :global(img) {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* Paged mode, switched on by the script below on wide screens. */
+  .reader.is-paged .page {
+    display: none;
+  }
+  .reader.is-paged .page.is-current {
+    display: block;
+    cursor: pointer;
+  }
+  .reader.is-paged .page :global(img) {
+    width: auto;
+    max-height: calc(100vh - var(--header-h) - 5rem);
+    max-width: 100%;
+    user-select: none;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+  .controls[hidden] {
+    display: none;
+  }
+  .controls button {
+    font: inherit;
+    font-size: 1.4rem;
+    line-height: 1;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--ink);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+  }
+  .controls button:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+  .counter {
+    font-variant-numeric: tabular-nums;
+    min-width: 4rem;
+    text-align: center;
+  }
+</style>
+
+<script>
+  const reader = document.querySelector<HTMLElement>('[data-reader]');
+
+  if (reader) {
+    const pages = [...reader.querySelectorAll<HTMLElement>('.page')];
+    const controls = reader.querySelector<HTMLElement>('.controls')!;
+    const prevBtn = reader.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const nextBtn = reader.querySelector<HTMLButtonElement>('[data-next]')!;
+    const currentLabel = reader.querySelector<HTMLElement>('[data-current]')!;
+    const wide = window.matchMedia('(min-width: 768px)');
+
+    let current = 0;
+
+    const pageFromHash = () => {
+      const n = parseInt(location.hash.slice(1), 10);
+      return Number.isInteger(n) && n >= 1 && n <= pages.length ? n - 1 : 0;
+    };
+
+    // Hidden lazy images never load, so ask for the neighbours explicitly.
+    const preload = (i: number) => {
+      const img = pages[i]?.querySelector('img');
+      if (img) img.loading = 'eager';
+    };
+
+    const show = (i: number, { scroll = true } = {}) => {
+      current = Math.max(0, Math.min(pages.length - 1, i));
+      pages.forEach((p, j) => p.classList.toggle('is-current', j === current));
+      currentLabel.textContent = String(current + 1);
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === pages.length - 1;
+      preload(current);
+      preload(current + 1);
+      preload(current - 1);
+      history.replaceState(null, '', current === 0 ? location.pathname : `#${current + 1}`);
+      if (scroll && reader.getBoundingClientRect().top < 0) {
+        reader.scrollIntoView({ block: 'start' });
+      }
+    };
+
+    const applyMode = () => {
+      const paged = wide.matches;
+      reader.classList.toggle('is-paged', paged);
+      controls.hidden = !paged;
+      if (paged) {
+        show(pageFromHash(), { scroll: false });
+      } else {
+        pages.forEach((p) => p.classList.remove('is-current'));
+      }
+    };
+
+    prevBtn.addEventListener('click', () => show(current - 1));
+    nextBtn.addEventListener('click', () => show(current + 1));
+
+    // Click the left third of a page to go back, anywhere else to go forward.
+    reader.querySelector('.pages')!.addEventListener('click', (e) => {
+      if (!reader.classList.contains('is-paged')) return;
+      const page = (e.target as HTMLElement).closest('.page');
+      if (!page) return;
+      const rect = page.getBoundingClientRect();
+      const x = (e as MouseEvent).clientX - rect.left;
+      show(x < rect.width / 3 ? current - 1 : current + 1);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!reader.classList.contains('is-paged') || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.key === 'ArrowRight') show(current + 1);
+      else if (e.key === 'ArrowLeft') show(current - 1);
+      else return;
+      e.preventDefault();
+    });
+
+    wide.addEventListener('change', applyMode);
+    applyMode();
+  }
+</script>

@@ -1,0 +1,116 @@
+---
+// Masonry grid of artworks. Clicking one opens it full screen (PhotoSwipe).
+import { Image, getImage } from 'astro:assets';
+import type { Artwork } from '../lib/content';
+
+interface Props {
+  artworks: Artwork[];
+}
+
+const { artworks } = Astro.props;
+
+const items = await Promise.all(
+  artworks.map(async (art) => {
+    const { image } = art.data;
+    const width = Math.min(image.width, 2000);
+    const height = Math.round((image.height * width) / image.width);
+    const full = await getImage({ src: image, width, format: 'webp' });
+    const caption = [art.data.title, art.data.medium, art.data.size, art.data.date.getFullYear()]
+      .filter(Boolean)
+      .join(' · ');
+    return { art, full: full.src, width, height, caption };
+  }),
+);
+---
+
+<div class="gallery" data-gallery>
+  {
+    items.map(({ art, full, width, height, caption }) => (
+      <a
+        class="item"
+        href={full}
+        data-pswp-width={width}
+        data-pswp-height={height}
+        data-caption={caption}
+        id={art.id}
+      >
+        <Image
+          src={art.data.image}
+          alt={art.data.title}
+          widths={[360, 540, 720]}
+          sizes="(min-width: 1000px) 360px, (min-width: 600px) 45vw, 100vw"
+        />
+        <span class="caption">{art.data.title}</span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .gallery {
+    columns: 3 300px;
+    column-gap: clamp(1rem, 2.5vw, 2rem);
+  }
+  .item {
+    display: block;
+    break-inside: avoid;
+    margin-bottom: clamp(1rem, 2.5vw, 2rem);
+    text-decoration: none;
+  }
+  .item :global(img) {
+    width: 100%;
+  }
+  .caption {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  import PhotoSwipeLightbox from 'photoswipe/lightbox';
+  import 'photoswipe/style.css';
+
+  const lightbox = new PhotoSwipeLightbox({
+    gallery: '[data-gallery]',
+    children: 'a',
+    pswpModule: () => import('photoswipe'),
+    bgOpacity: 0.95,
+  });
+
+  lightbox.on('uiRegister', () => {
+    lightbox.pswp?.ui?.registerElement({
+      name: 'caption',
+      order: 9,
+      isButton: false,
+      appendTo: 'root',
+      onInit: (el, pswp) => {
+        pswp.on('change', () => {
+          el.textContent = pswp.currSlide?.data.element?.dataset.caption ?? '';
+        });
+      },
+    });
+  });
+
+  lightbox.init();
+</script>
+
+<style is:global>
+  .pswp__caption {
+    position: absolute;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    max-width: calc(100% - 2rem);
+    padding: 0.4rem 0.8rem;
+    color: #eee;
+    font-size: 0.9rem;
+    text-align: center;
+    background: rgb(0 0 0 / 0.5);
+    border-radius: 3px;
+  }
+  .pswp__caption:empty {
+    display: none;
+  }
+</style>
