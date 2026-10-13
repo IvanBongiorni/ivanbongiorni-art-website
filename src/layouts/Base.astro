@@ -11,9 +11,11 @@ interface Props {
   description?: string;
   // Used for link previews on Instagram, WhatsApp, Reddit, etc.
   image?: ImageMetadata;
+  // Set to false when the page shows its own newsletter form, so the footer doesn't repeat it.
+  newsletter?: boolean;
 }
 
-const { title, description = SITE.description, image } = Astro.props;
+const { title, description = SITE.description, image, newsletter = true } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = image
@@ -47,6 +49,6 @@ const ogImage = image
     <main>
       <slot />
     </main>
-    <Footer />
+    <Footer newsletter={newsletter} />
   </body>
 </html>

@@ -3,12 +3,18 @@ import Newsletter from './Newsletter.astro';
 import SocialLinks from './SocialLinks.astro';
 import { SITE } from '../site.config';
 
+interface Props {
+  // Hide the signup form on pages that already show one in the content.
+  newsletter?: boolean;
+}
+
+const { newsletter = true } = Astro.props;
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="wrap grid">
-    <Newsletter />
+    {newsletter && <Newsletter />}
     <div class="side">
       <SocialLinks />
       <p class="meta">

@@ -1,5 +1,5 @@
 ---
-import { SITE } from '../site.config';
+import { NEWSLETTER, SITE } from '../site.config';
 
 const links = [
   { href: '/', label: 'Comics' },
@@ -19,6 +19,7 @@ const isCurrent = (href: string) =>
       {links.map((l) => (
         <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
+      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">Subscribe</a>}
     </nav>
   </div>
 </header>
@@ -52,6 +53,15 @@ const isCurrent = (href: string) =>
   nav a:hover,
   nav a[aria-current='page'] {
     color: var(--ink);
+  }
+  nav a.subscribe {
+    color: var(--accent);
+  }
+  /* No room for a fourth link next to the name on phones; the form is at the end of the page. */
+  @media (max-width: 30rem) {
+    nav a.subscribe {
+      display: none;
+    }
   }
   nav a[aria-current='page'] {
     text-decoration: underline;
