@@ -18,7 +18,7 @@ npm run preview  # serve dist/ locally
 ## Languages
 
 The site is in English and Italian. English is the default, at the root (`/comics/...`);
-Italian is the same path under `/it/` (`/it/comics/...`). The globe icon at the top right of every page
+Italian is the same path under `/it/` (`/it/comics/...`). The flag at the top right of every page
 switches to the same page in the other language.
 
 - All interface text (menus, buttons, labels, page descriptions) is in [`src/i18n.ts`](src/i18n.ts), both languages side by side.
