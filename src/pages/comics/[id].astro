@@ -4,10 +4,13 @@ import Base from '../../layouts/Base.astro';
 import Reader from '../../components/Reader.astro';
 import Newsletter from '../../components/Newsletter.astro';
 import StoryGrid from '../../components/StoryGrid.astro';
-import { getStories, getPages, formatDate, type Story } from '../../lib/content';
+import { getStories, getPages, getProcess, formatDate, type Story } from '../../lib/content';
 
 export async function getStaticPaths() {
   const stories = await getStories();
+  if (stories.some((s) => s.id === 'process')) {
+    throw new Error('A story folder can\'t be named "process": /comics/process/ is the work-in-progress page.');
+  }
   return stories.map((story) => ({ params: { id: story.id }, props: { story, stories } }));
 }
 
@@ -20,6 +23,7 @@ const { story, stories } = Astro.props;
 const pages = getPages(story.id);
 const { Content } = await render(story);
 const hasNote = Boolean(story.body?.trim());
+const hasProcess = (await getProcess(story.id)).length > 0;
 const more = stories.filter((s) => s.id !== story.id).slice(0, 4);
 ---
 
@@ -46,6 +50,7 @@ const more = stories.filter((s) => s.id !== story.id).slice(0, 4);
         </div>
       )
     }
+    {hasProcess && <a class="process-link" href={`/comics/process/#${story.id}`}>See how this story was drawn</a>}
     <Newsletter heading="Want to read the next one?" />
   </section>
 
@@ -94,5 +99,11 @@ const more = stories.filter((s) => s.id !== story.id).slice(0, 4);
   }
   .note {
     width: 100%;
+  }
+  .process-link {
+    color: var(--muted);
+  }
+  .process-link:hover {
+    color: var(--ink);
   }
 </style>

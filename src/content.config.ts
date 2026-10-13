@@ -42,4 +42,24 @@ const art = defineCollection({
     }),
 });
 
-export const collections = { comics, art };
+// Work in progress: thumbnails, pencils, inks, unfinished pages. Shown on
+// /comics/process/. Each one is a Markdown file next to its image, in
+// src/content/process/ (subfolders are fine, e.g. one per story).
+const process = defineCollection({
+  loader: glob({ base: './src/content/process', pattern: '**/*.md' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      // The day the work was done, so the page keeps a dated record of it.
+      date: z.coerce.date(),
+      image: image(),
+      // Folder name of the story it belongs to (links to the story once it is
+      // published), or a working title for a story that isn't on the site yet.
+      story: z.string().optional(),
+      // Free text, e.g. Thumbnails, Pencils, Inks, Colours.
+      stage: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { comics, art, process };
