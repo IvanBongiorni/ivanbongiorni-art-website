@@ -19,7 +19,7 @@ const isCurrent = (href: string) =>
       {links.map((l) => (
         <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
-      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">Stay updated</a>}
+      {NEWSLETTER.kitFormId && <a class="subscribe" href="#newsletter">Update me</a>}
     </nav>
   </div>
 </header>
