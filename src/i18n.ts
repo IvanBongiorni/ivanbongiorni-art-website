@@ -29,6 +29,7 @@ const en = {
 
   nav: { label: 'Main', comics: 'Comics', art: 'Art', about: 'About', updateMe: 'Update me' },
   switchTo: 'Read in English',
+  darkMode: 'Dark mode',
 
   footer: {
     rights: 'All rights reserved.',
@@ -106,6 +107,7 @@ const it: typeof en = {
 
   nav: { label: 'Principale', comics: 'Fumetti', art: 'Arte', about: 'Chi sono', updateMe: 'Aggiornami' },
   switchTo: 'Leggi in italiano',
+  darkMode: 'Modalità scura',
 
   footer: {
     rights: 'Tutti i diritti riservati.',

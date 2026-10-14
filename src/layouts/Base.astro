@@ -43,6 +43,12 @@ const ogImage = image
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
+    <!-- Apply the saved theme before the page paints, so dark mode doesn't flash light. -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.dataset.theme = 'dark';
+      } catch {}
+    </script>
     <meta name="description" content={description} />
     <meta name="author" content={SITE.author} />
     <link rel="canonical" href={canonical} />
